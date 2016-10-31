@@ -1,0 +1,11 @@
+{
+  "name"         : "AssignmentScraper",
+  "version"      : "0.0.1",
+  "description"  : "JS implementation of scraper to test student submissions",
+  "main"         : "scaper.js",
+  "author"       : "Paul Vesey",
+  "dependencies" : {
+    "request"    : "latest",
+    "cheerio"    : "latest"
+  }
+}
