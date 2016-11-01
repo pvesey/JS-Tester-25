@@ -1,11 +1,13 @@
 {
-  "name"         : "AssignmentScraper",
-  "version"      : "0.0.1",
-  "description"  : "JS implementation of scraper to test student submissions",
-  "main"         : "scaper.js",
-  "author"       : "Paul Vesey",
-  "dependencies" : {
-    "request"    : "latest",
-    "cheerio"    : "latest"
+  "name": "AssignmentScraper",
+  "version": "0.0.1",
+  "description": "JS implementation of scraper to test student submissions",
+  "main": "scaper.js",
+  "author": "Paul Vesey",
+  "dependencies": {
+    "async": "^2.1.2",
+    "cheerio": "latest",
+    "request": "latest",
+    "sync-request": "^3.0.1"
   }
 }

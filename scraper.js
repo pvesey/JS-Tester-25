@@ -1,51 +1,46 @@
 //scraper.js
 
 var fs = require('fs');
-var request = require('request');
 var cheerio = require('cheerio');
+var request = require('sync-request');
 
 var linkList = [];
 
 url = 'http://eir.ie';
 
+var res = request('GET', url);
+//console.log(res.getBody('utf-8'));
 
 
-function getLinks(url, htmlLinks){
-	request(url, function(error, response, html){
-	    if(!error){
-	      var $ = cheerio.load(html);
-	      var links = $('a');
+console.log(listBuilder(res));
 
-	      for (var i = 0; i < links.length; i++){
-	      	if (links[i].attribs.href == 'javascript:void(0);'){
-	      		continue;
-	      	}
-	      	if (links[i].attribs.href == 'undefined'){
-	      		continue;
-	      	}
-	      	if (links[i].attribs.href == undefined){
-	      		continue;
-	      	}
 
-			linkList.push(links[i].attribs.href);
-		  }
-	    }
-		htmlLinks(null, linkList);
-	})
+function listBuilder(response){
+	var $ = cheerio.load(response.getBody('utf-8'));
+	var links = $('a');
+
+	var linkList = [];
+	for (var i = 0; i < links.length; i++){
+		var linkHref = links[i].attribs.href;
+		if (linkHref == ""){continue;}
+		if (linkHref == undefined){continue;}
+		if (RegExp("javascript").test(linkHref)){continue;}
+		if (inArray(linkHref, linkList)){continue;}
+
+		linkList.push(linkHref);
+		
+	}
+
+	return linkList;
 }
 
-getLinks(url, function(err, htmlLinks){
-	for (var i = 0; i < linkList.length; i++){
-		getLinks(linkList[i], function(err, htmlLinks){
 
-		})
+function inArray(newValue, currentArray){
+	for (var i = 0; i < currentArray.length; i++){
+		if (newValue == currentArray[i]){
+			return true;
+		}
 	}
-	console.log(linkList)
-})
 
-
-
-
-
-
-
+	return false;
+}
