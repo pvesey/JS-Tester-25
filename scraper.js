@@ -8,26 +8,57 @@ var linkList = [];
 
 var url = 'http://qrattend.com';
 var domain = 'qrattend.com';
-var linkList = []
+var linkList = [];
+
+//console.log(process.argv[2]);   // command line arguments.  will use for URL
 
 
 listBuilder(url, domain);
 listBuilderReRun(domain, linkList);
 
-console.log(linkList);
+//console.log(linkList);
 
-imageTests(linkList[0]);
+//imageTests(linkList[0]);
+
+
+strucutreTests(linkList[0], 'head', true);
+strucutreTests(linkList[0], 'nav', true);
+strucutreTests(linkList[0], 'article', false);
+strucutreTests(linkList[0], 'section', false);
+strucutreTests(linkList[0], 'footer', true);
+
 
 function imageTests(page){
 	var $ = getPage(page);
 	var images = $('img');
+	for (var i=0; i < images.length; i++ ){
+		if (typeof images[i].attribs.alt === 'undefined' ) {
+    		console.log('issue found');
+		}
+		if (images[i].attribs.alt == '' ) {
+    		console.log('alt text not found on ' + images[i].attribs.src);
+		}
 
-	console.log(images[0].attribs.src)
-	console.log(images[0].attribs.alt)
-
+		//console.log(images[i].attribs.src);
+		//console.log(images[i].attribs.alt);
+		//console.log(images[i]);
+	}
 }
 
-
+function strucutreTests(page, tag, unique){
+	// add multile allowed by setting cases or something like that
+	var $ = getPage(page);
+	var tags = $(tag);
+	if ((tags.length == 0) && !unique){
+		console.log('You should have at least one ' + tag )
+	} else if ((tags.length == 0) && unique){
+		console.log('You should have only one ' + tag )	
+	} else if ((tags.length >=1 ) && !unique){
+		console.log( tags.length + tags + 'found: CORRECT')
+	} else if ((tags.length >=1 ) && unique){
+		console.log( tags.length + tags + 'found: You should not have more than one')
+	}
+}
 
 
 
