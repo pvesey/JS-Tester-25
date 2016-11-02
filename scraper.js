@@ -21,11 +21,20 @@ listBuilderReRun(domain, linkList);
 //imageTests(linkList[0]);
 
 
-strucutreTests(linkList[0], 'head', true);
-strucutreTests(linkList[0], 'nav', true);
-strucutreTests(linkList[0], 'article', false);
-strucutreTests(linkList[0], 'section', false);
-strucutreTests(linkList[0], 'footer', true);
+testRunner(linkList[0]);
+
+
+function testRunner(page){
+
+	strucutreTests(page, 'head', true);
+	strucutreTests(page, 'nav', true);
+	strucutreTests(page, 'article', false);
+	strucutreTests(page, 'section', false);
+	strucutreTests(page, 'footer', true);
+}
+
+
+
 
 
 function imageTests(page){
@@ -49,6 +58,19 @@ function strucutreTests(page, tag, unique){
 	// add multile allowed by setting cases or something like that
 	var $ = getPage(page);
 	var tags = $(tag);
+
+	if (unique){
+		if(tags.lengh)
+
+	} else {
+
+	}
+
+	
+
+
+
+
 	if ((tags.length == 0) && !unique){
 		console.log('You should have at least one ' + tag )
 	} else if ((tags.length == 0) && unique){
@@ -58,6 +80,9 @@ function strucutreTests(page, tag, unique){
 	} else if ((tags.length >=1 ) && unique){
 		console.log( tags.length + tags + 'found: You should not have more than one')
 	}
+	console.log('*********************************');
+	console.log(tag);
+	console.log('*********************************');
 }
 
 
@@ -67,13 +92,6 @@ function getPage(url){
 	var response = request('GET', url);
 	return cheerio.load(response.getBody('utf-8'));
 }
-
-
-
-
-
-
-
 
 function listBuilder(url, domain){
 	var response = request('GET', url);
