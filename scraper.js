@@ -17,55 +17,50 @@ var linkList = [];
 listBuilder(url, domain);
 listBuilderReRun(domain, linkList);
 
-//console.log(linkList);
-
-//imageTests(linkList[0]);
 
 jsdom.env(
   url,
   ["http://code.jquery.com/jquery.js"],
   function (err, window) {
-    //console.log("there have been", window.$("head").length, "head");
-    //console.log("there have been", window.$("nav").length,  "nav");
-    //console.log("there have been", window.$("article").length, "article");
-    //console.log("there have been", window.$("section").length, "section");
+
     structureTests(window.$("head").length, "head", true);
     structureTests(window.$("nav").length, "nav", true);
     structureTests(window.$("article").length, "article", false);
     structureTests(window.$("section").length, "section", false);
     structureTests(window.$("footer").length, "footer", true);
+
+    insightTest(window.$('script').length, 'script');
+    insightTest(window.$('meta').length, 'meta');
+    insightTest(window.$('br').length, 'br');
+    insightTest(window.$('b').length, 'b');
+    insightTest(window.$('i').length, 'i');
+    insightTest(window.$('iframe').length, 'iframe');
+    insightTest(window.$('video').length, 'video');
+    insightTest(window.$('audio').length, 'audio');
+    insightTest(window.$('svg').length, 'svg');
+    insightTest(window.$('canvas').length, 'canvas');
   }
 );
+
+
+function fileSystemTest(){
+	// Folder tests here.. JS/IMG/ETC
+}
 
 
 
 
 //testRunner(linkList[0]);
 
-
-function testRunner(url){
-
-	var response = getPage(url);
-	var $ = cheerio.load(response.getBody());
-	structureTests($, 'head', true);
-	structureTests($, 'nav', true);
-	structureTests($, 'article', false);
-	structureTests($, 'section', false);
-	structureTests($, 'footer', true);
+function insightTest(numTags, tag){
+	console.log(numTags + ' ' + tag + ' tags found.');
 }
 
 
+
+
 function imageTests(page){
-	var $ = getPage(page);
-	var images = $('img');
-	for (var i=0; i < images.length; i++ ){
-		if (typeof images[i].attribs.alt === 'undefined' ) {
-    		console.log('issue found');
-		}
-		if (images[i].attribs.alt == '' ) {
-    		console.log('alt text not found on ' + images[i].attribs.src);
-		}
-	}
+	// Image tests go here..
 }
 
 function structureTests(numTags, tag, unique){
@@ -103,6 +98,9 @@ function getPage(url){
 }
 
 function listBuilder(url, domain){
+	// LOOK AT REWRITE USING JSDOM...
+
+
 	var response = request('GET', url);
 	var $ = cheerio.load(response.getBody('utf-8'));
 	var links = $('a');
@@ -125,9 +123,6 @@ function listBuilder(url, domain){
 
 	return linkList;
 }
-
-
-
 
 function listBuilderReRun(domain, list){
 	for (var i = 0; i < list.length; i++){
