@@ -25,30 +25,33 @@ jsdom.env(
   url,
   ["http://code.jquery.com/jquery.js"],
   function (err, window) {
-    console.log("there have been", window.$("head").length, "head");
-    console.log("there have been", window.$("nav").length,  "nav");
-    console.log("there have been", window.$("article").length, "article");
-    console.log("there have been", window.$("section").length, "section");
-
-
+    //console.log("there have been", window.$("head").length, "head");
+    //console.log("there have been", window.$("nav").length,  "nav");
+    //console.log("there have been", window.$("article").length, "article");
+    //console.log("there have been", window.$("section").length, "section");
+    structureTests(window.$("head").length, "head", true);
+    structureTests(window.$("nav").length, "nav", true);
+    structureTests(window.$("article").length, "article", false);
+    structureTests(window.$("section").length, "section", false);
+    structureTests(window.$("footer").length, "footer", true);
   }
 );
 
 
 
 
-testRunner(linkList[0]);
+//testRunner(linkList[0]);
 
 
 function testRunner(url){
 
 	var response = getPage(url);
 	var $ = cheerio.load(response.getBody());
-	strucutreTests($, 'head', true);
-	strucutreTests($, 'nav', true);
-	strucutreTests($, 'article', false);
-	strucutreTests($, 'section', false);
-	strucutreTests($, 'footer', true);
+	structureTests($, 'head', true);
+	structureTests($, 'nav', true);
+	structureTests($, 'article', false);
+	structureTests($, 'section', false);
+	structureTests($, 'footer', true);
 }
 
 
@@ -65,25 +68,25 @@ function imageTests(page){
 	}
 }
 
-function strucutreTests($, tag, unique){
-
-	var tags = $(tag);
+function structureTests(numTags, tag, unique){
 
 	if (unique){
-		if (tags.length == 0){
-			console.log('You should have only one ' + tag )	
-		} else if (tags.length >=1 ){
-			console.log( tags.length + tags + 'found: You should not have more than one')
+		if (numTags == 0){
+			console.log('You should have one ' + tag + ' tag' )	
+		} else if (numTags = 1 ){
+			console.log( numTags + " " + tag + ' found: You should only have one: CORRECT');
+		} else if (numTags >= 1 ){
+			console.log( numTags + " " + tag + ' found: You should not have more than one')
 		} else {
 			console.log('fell out of loop');
 		}
 
 	} else {
 
-		if (tags.length == 0) {
+		if (numTags == 0) { 
 			console.log('You should have at least one ' + tag )
-		} else if ((tags.length >=1 ) && !unique){
-			console.log( tags.length + tags + 'found: CORRECT')
+		} else if (numTags >=1 ){
+			console.log( numTags + " " + tag + 's found: CORRECT')
 		} else {
 			console.log('fell out of loop');
 		}
