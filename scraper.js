@@ -3,6 +3,7 @@
 var fs = require('fs');
 var cheerio = require('cheerio');
 var request = require('sync-request');
+var jsdom = require('jsdom');
 
 var linkList = [];
 
@@ -20,21 +21,35 @@ listBuilderReRun(domain, linkList);
 
 //imageTests(linkList[0]);
 
+jsdom.env(
+  url,
+  ["http://code.jquery.com/jquery.js"],
+  function (err, window) {
+    console.log("there have been", window.$("head").length, "head");
+    console.log("there have been", window.$("nav").length,  "nav");
+    console.log("there have been", window.$("article").length, "article");
+    console.log("there have been", window.$("section").length, "section");
+
+
+  }
+);
+
+
+
 
 testRunner(linkList[0]);
 
 
-function testRunner(page){
+function testRunner(url){
 
-	strucutreTests(page, 'head', true);
-	strucutreTests(page, 'nav', true);
-	strucutreTests(page, 'article', false);
-	strucutreTests(page, 'section', false);
-	strucutreTests(page, 'footer', true);
+	var response = getPage(url);
+	var $ = cheerio.load(response.getBody());
+	strucutreTests($, 'head', true);
+	strucutreTests($, 'nav', true);
+	strucutreTests($, 'article', false);
+	strucutreTests($, 'section', false);
+	strucutreTests($, 'footer', true);
 }
-
-
-
 
 
 function imageTests(page){
@@ -47,50 +62,41 @@ function imageTests(page){
 		if (images[i].attribs.alt == '' ) {
     		console.log('alt text not found on ' + images[i].attribs.src);
 		}
-
-		//console.log(images[i].attribs.src);
-		//console.log(images[i].attribs.alt);
-		//console.log(images[i]);
 	}
 }
 
-function strucutreTests(page, tag, unique){
-	// add multile allowed by setting cases or something like that
-	var $ = getPage(page);
+function strucutreTests($, tag, unique){
+
 	var tags = $(tag);
 
 	if (unique){
-		if(tags.lengh)
+		if (tags.length == 0){
+			console.log('You should have only one ' + tag )	
+		} else if (tags.length >=1 ){
+			console.log( tags.length + tags + 'found: You should not have more than one')
+		} else {
+			console.log('fell out of loop');
+		}
 
 	} else {
 
+		if (tags.length == 0) {
+			console.log('You should have at least one ' + tag )
+		} else if ((tags.length >=1 ) && !unique){
+			console.log( tags.length + tags + 'found: CORRECT')
+		} else {
+			console.log('fell out of loop');
+		}
+
 	}
 
-	
-
-
-
-
-	if ((tags.length == 0) && !unique){
-		console.log('You should have at least one ' + tag )
-	} else if ((tags.length == 0) && unique){
-		console.log('You should have only one ' + tag )	
-	} else if ((tags.length >=1 ) && !unique){
-		console.log( tags.length + tags + 'found: CORRECT')
-	} else if ((tags.length >=1 ) && unique){
-		console.log( tags.length + tags + 'found: You should not have more than one')
-	}
-	console.log('*********************************');
-	console.log(tag);
-	console.log('*********************************');
 }
-
-
 
 
 function getPage(url){
 	var response = request('GET', url);
-	return cheerio.load(response.getBody('utf-8'));
+	//return cheerio.load(response.getBody('utf-8'));
+	return response;
 }
 
 function listBuilder(url, domain){
@@ -124,7 +130,6 @@ function listBuilderReRun(domain, list){
 	for (var i = 0; i < list.length; i++){
 		linklist = listBuilder(list[i], domain);
 	}
-
 
 }
 
