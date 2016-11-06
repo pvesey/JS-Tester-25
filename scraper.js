@@ -4,11 +4,12 @@ var fs = require('fs');
 var cheerio = require('cheerio');
 var request = require('sync-request');
 var jsdom = require('jsdom');
+var asyncreq = require('request')
 
 var linkList = [];
 
-var url = 'http://qrattend.com';
-var domain = 'qrattend.com';
+var url = 'http://localhost/Assignment2/vincent/k00223361_VincentLee_Assignment2/lebanese_website';
+var domain = 'localhost/Assignment2/vincent/k00223361_VincentLee_Assignment2/lebanese_website';
 var linkList = [];
 
 //console.log(process.argv[2]);   // command line arguments.  will use for URL
@@ -17,34 +18,52 @@ var linkList = [];
 listBuilder(url, domain);
 listBuilderReRun(domain, linkList);
 
+testRunner(url);
 
-jsdom.env(
-  url,
-  ["http://code.jquery.com/jquery.js"],
-  function (err, window) {
+function testRunner(url){
+	jsdom.env(
+	  url,
+	  ["http://code.jquery.com/jquery.js"],
+	  function (err, window) {
 
-    structureTests(window.$("head").length, "head", true);
-    structureTests(window.$("nav").length, "nav", true);
-    structureTests(window.$("article").length, "article", false);
-    structureTests(window.$("section").length, "section", false);
-    structureTests(window.$("footer").length, "footer", true);
+	    structureTests(window.$("head").length, "head", true);
+	    structureTests(window.$("nav").length, "nav", true);
+	    structureTests(window.$("article").length, "article", false);
+	    structureTests(window.$("section").length, "section", false);
+	    structureTests(window.$("footer").length, "footer", true);
 
-    insightTest(window.$('script').length, 'script');
-    insightTest(window.$('meta').length, 'meta');
-    insightTest(window.$('br').length, 'br');
-    insightTest(window.$('b').length, 'b');
-    insightTest(window.$('i').length, 'i');
-    insightTest(window.$('iframe').length, 'iframe');
-    insightTest(window.$('video').length, 'video');
-    insightTest(window.$('audio').length, 'audio');
-    insightTest(window.$('svg').length, 'svg');
-    insightTest(window.$('canvas').length, 'canvas');
-  }
-);
+	    insightTest(window.$('script').length, 'script');
+	    insightTest(window.$('meta').length, 'meta');
+	    insightTest(window.$('br').length, 'br');
+	    insightTest(window.$('b').length, 'b');
+	    insightTest(window.$('i').length, 'i');
+	    insightTest(window.$('iframe').length, 'iframe');
+	    insightTest(window.$('video').length, 'video');
+	    insightTest(window.$('audio').length, 'audio');
+	    insightTest(window.$('svg').length, 'svg');
+	    insightTest(window.$('canvas').length, 'canvas');
+	  }
+	);
+	fileSystemTest(url, 'images');
+	fileSystemTest(url, 'js');
+	fileSystemTest(url, 'style');
+	fileSystemTest(url, 'audio');
+	fileSystemTest(url, 'video');
+	fileSystemTest(url, 'fonts');
+}
 
+function fileSystemTest(url, testDir){
+	
+	var testURL = (url + '/' + testDir + '/');
 
-function fileSystemTest(){
-	// Folder tests here.. JS/IMG/ETC
+	asyncreq(testURL, function (error, response, body) {
+	  if (!error && response.statusCode == 200) {
+	    console.log(testURL, 'FOUND');
+	  } else{
+	  	console.log(testURL, response.statusCode);
+	  }
+
+	})
 }
 
 
