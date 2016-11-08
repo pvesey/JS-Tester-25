@@ -9,16 +9,45 @@ var asyncreq = require('request')
 var linkList = [];
 
 var url = 'http://localhost/Assignment2/vincent/k00223361_VincentLee_Assignment2/lebanese_website';
-var domain = 'localhost/Assignment2/vincent/k00223361_VincentLee_Assignment2/lebanese_website';
-var linkList = [];
 
 //console.log(process.argv[2]);   // command line arguments.  will use for URL
 
+var h = new urlHelper(url);
 
-listBuilder(url, domain);
-listBuilderReRun(domain, linkList);
+listBuilder(url, h.getDomain(), h.getHost());
+listBuilderReRun(h.getDomain(), linkList);
+h.getHost();
+console.log('BACK FROM Route', listBuilder(url, h.getDomain(), h.getHost()));
 
-testRunner(url);
+//testRunner(url);
+
+function urlHelper(url){
+
+	var _url = url
+
+	this.addSubfolder = function(subfolder){
+		if ((_url.length - _url.lastIndexOf('/')) == 1){
+			return (_url + subfolder);
+		} else {
+			return (_url + '/' + subfolder);
+		}
+	}
+
+	this.getDomain = function(){
+		return _url.split(this.getProtocol() + '://')[1]
+	}
+
+	this.getProtocol = function(){
+		return _url.substring(0, _url.indexOf(':'))
+	}
+
+	this.getHost = function(){
+ 		var _host = _url.split(this.getProtocol() + '://')[1];
+ 		_host = _host.substring(0, _host.indexOf('/'));
+ 		return _host;
+	}
+}
+
 
 function testRunner(url){
 	jsdom.env(
@@ -54,7 +83,7 @@ function testRunner(url){
 
 function fileSystemTest(url, testDir){
 	
-	var testURL = (url + '/' + testDir + '/');
+	var testURL = h.addSubfolder(testDir);
 
 	asyncreq(testURL, function (error, response, body) {
 	  if (!error && response.statusCode == 200) {
@@ -67,15 +96,9 @@ function fileSystemTest(url, testDir){
 }
 
 
-
-
-//testRunner(linkList[0]);
-
 function insightTest(numTags, tag){
 	console.log(numTags + ' ' + tag + ' tags found.');
 }
-
-
 
 
 function imageTests(page){
@@ -112,14 +135,35 @@ function structureTests(numTags, tag, unique){
 
 function getPage(url){
 	var response = request('GET', url);
-	//return cheerio.load(response.getBody('utf-8'));
 	return response;
 }
 
-function listBuilder(url, domain){
+function listBuilder(url, domain, host){
 	// LOOK AT REWRITE USING JSDOM...
 
+	var _host = host;
 
+	jsdom.env(
+	  url,
+	  ["http://code.jquery.com/jquery.js"],
+	  function (err, window, host) {
+	    var links = (window.$("a"));
+
+	    for (var i = 0; i < links.length; i++){
+	    	//if (links[i].href == ""){continue;}
+	    	if (links[i].href.endsWith('#')){continue;}
+	    	if (inArray(links[i].href, linkList)){continue;}
+	    	if (_host == links[i].host){
+	    		linkList.push(links[i].href);	    		
+	    	}
+	    }
+	    return linkList;
+	  }
+	);
+
+	//console.log('Link List',linkList)
+
+	/*
 	var response = request('GET', url);
 	var $ = cheerio.load(response.getBody('utf-8'));
 	var links = $('a');
@@ -136,11 +180,11 @@ function listBuilder(url, domain){
 		if (!RegExp(domain).test(linkHref)){continue;}
 
 		linkList.push(linkHref);
-
+		console.log(linkHref);
 		//listBuilder(linkHref);  // recursive call
 	}
-
 	return linkList;
+	*/
 }
 
 function listBuilderReRun(domain, list){
