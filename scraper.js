@@ -6,18 +6,14 @@ var request = require('sync-request');
 var jsdom = require('jsdom');
 var asyncreq = require('request')
 
-var linkList = [];
-
-var url = 'http://localhost/Assignment2/vincent/k00223361_VincentLee_Assignment2/lebanese_website';
+var url = 'http://localhost/Assignment2/VincentLee/';
 
 //console.log(process.argv[2]);   // command line arguments.  will use for URL
 
 var h = new urlHelper(url);
 
-listBuilder(url, h.getDomain(), h.getHost());
-listBuilderReRun(h.getDomain(), linkList);
-h.getHost();
-console.log('BACK FROM Route', listBuilder(url, h.getDomain(), h.getHost()));
+listBuilder(url, h.getDomain());
+
 
 //testRunner(url);
 
@@ -46,6 +42,7 @@ function urlHelper(url){
  		_host = _host.substring(0, _host.indexOf('/'));
  		return _host;
 	}
+
 }
 
 
@@ -132,67 +129,48 @@ function structureTests(numTags, tag, unique){
 
 }
 
-
-function getPage(url){
-	var response = request('GET', url);
-	return response;
-}
-
-function listBuilder(url, domain, host){
-	// LOOK AT REWRITE USING JSDOM...
-
-	var _host = host;
+function listBuilder(url, domain){
+	
+	var _domain = domain;
 
 	jsdom.env(
 	  url,
 	  ["http://code.jquery.com/jquery.js"],
 	  function (err, window, host) {
+
+
 	    var links = (window.$("a"));
 
-	    for (var i = 0; i < links.length; i++){
-	    	//if (links[i].href == ""){continue;}
-	    	if (links[i].href.endsWith('#')){continue;}
-	    	if (inArray(links[i].href, linkList)){continue;}
-	    	if (_host == links[i].host){
-	    		linkList.push(links[i].href);	    		
-	    	}
+	    links = (listCleaner(links))
+
+	    for (var i = 0; i< links.length; i++){
+	    	console.log(links[i])
+	    	testRunner(links[i]);
 	    }
-	    return linkList;
 	  }
 	);
-
-	//console.log('Link List',linkList)
-
-	/*
-	var response = request('GET', url);
-	var $ = cheerio.load(response.getBody('utf-8'));
-	var links = $('a');
-
-	for (var i = 0; i < links.length; i++){
-		var linkHref = links[i].attribs.href;
-		if (linkHref == ""){continue;}
-		if (linkHref == undefined){continue;}
-		if (RegExp("javascript").test(linkHref)){continue;}
-		if (inArray(linkHref, linkList)){continue;}
-		if (RegExp("^\/").test(linkHref)){
-			linkHref = url + linkHref
-		}
-		if (!RegExp(domain).test(linkHref)){continue;}
-
-		linkList.push(linkHref);
-		console.log(linkHref);
-		//listBuilder(linkHref);  // recursive call
-	}
-	return linkList;
-	*/
 }
 
-function listBuilderReRun(domain, list){
-	for (var i = 0; i < list.length; i++){
-		linklist = listBuilder(list[i], domain);
-	}
 
+function listCleaner(links){
+
+	var _domain = h.getDomain();
+	var _linkList = [];
+
+	console.log(_domain);
+
+
+    for (var i = 0; i < links.length; i++){
+    	//if (links[i].href == ""){continue;}
+    	if (links[i].href.endsWith('#')){continue;}
+    	if (inArray(links[i].href, _linkList)){continue;}
+    	if (_domain == links[i].host){
+    		_linkList.push(links[i].href);	    		
+    	}
+    }
+	return _linkList;
 }
+
 
 function inArray(newValue, currentArray){
 	for (var i = 0; i < currentArray.length; i++){
