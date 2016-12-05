@@ -6,13 +6,47 @@ var request = require('sync-request');
 var jsdom = require('jsdom');
 var asyncreq = require('request')
 
-var url = 'http://localhost/Assignment2/VincentLee/';
+var url = 'http://localhost/Assignment3/AlanStewart/';
 
 //console.log(process.argv[2]);   // command line arguments.  will use for URL
 
 var h = new urlHelper(url);
 
+var report = new reportObject();
+
+
+
+//structureTestRunner(url);
+
+var testResults = new Promise(
+
+	function(resolve, reject){
+		resolve(
+			//structureTestRunner(url)
+			fileSystemTest(url, 'images')
+			//fileSystemTest(url, 'js'),
+			//fileSystemTest(url, 'style'),
+			//fileSystemTest(url, 'audio'),
+			//fileSystemTest(url, 'video'),
+			//fileSystemTest(url, 'fonts')
+
+		);
+	}
+);
+
+testResults.then(function(value){
+
+		//console.log(report);
+		console.log(value)
+		console.log('BACK FROM PROMSE')
+		console.log(report.getFileSystemReport());
+	}
+);
+
+
+
 listBuilder(url, h.getDomain());
+
 
 
 //testRunner(url);
@@ -43,10 +77,33 @@ function urlHelper(url){
  		return _host;
 	}
 
+	this.getPath = function(){
+		var _path = _url.substring(0, (_url.lastIndexOf('/')+1));
+		return (_path); 
+	}
+
+
+
+}
+
+function structureTestRunner(url){
+
+	console.log('Structure Tests on: ', url);
+	report.setFileSystemReportItem(fileSystemTest(url, 'images'));
+	report.setFileSystemReportItem(fileSystemTest(url, 'js'));
+	report.setFileSystemReportItem(fileSystemTest(url, 'style'));
+	report.setFileSystemReportItem(fileSystemTest(url, 'audio'));
+	report.setFileSystemReportItem(fileSystemTest(url, 'video'));
+	report.setFileSystemReportItem(fileSystemTest(url, 'fonts'));
 }
 
 
-function testRunner(url){
+
+
+
+function pageTestRunner(url){
+
+
 	jsdom.env(
 	  url,
 	  ["http://code.jquery.com/jquery.js"],
@@ -70,12 +127,7 @@ function testRunner(url){
 	    insightTest(window.$('canvas').length, 'canvas');
 	  }
 	);
-	fileSystemTest(url, 'images');
-	fileSystemTest(url, 'js');
-	fileSystemTest(url, 'style');
-	fileSystemTest(url, 'audio');
-	fileSystemTest(url, 'video');
-	fileSystemTest(url, 'fonts');
+
 }
 
 function fileSystemTest(url, testDir){
@@ -84,9 +136,11 @@ function fileSystemTest(url, testDir){
 
 	asyncreq(testURL, function (error, response, body) {
 	  if (!error && response.statusCode == 200) {
-	    console.log(testURL, 'FOUND');
+	    //console.log(testURL, 'FOUND');
+	    return (testURL + ' FOUND');
 	  } else{
-	  	console.log(testURL, response.statusCode);
+	  	//console.log(testURL, response.statusCode);
+	  	return (testURL + ' ' + response.statusCode);
 	  }
 
 	})
@@ -140,12 +194,12 @@ function listBuilder(url, domain){
 
 
 	    var links = (window.$("a"));
-
+		
 	    links = (listCleaner(links))
 
 	    for (var i = 0; i< links.length; i++){
 	    	console.log(links[i])
-	    	testRunner(links[i]);
+	    	//pageTestRunner(links[i]);
 	    }
 	  }
 	);
@@ -154,20 +208,21 @@ function listBuilder(url, domain){
 
 function listCleaner(links){
 
-	var _domain = h.getDomain();
+	var _path = h.getPath();
+
 	var _linkList = [];
 
-	console.log(_domain);
-
-
     for (var i = 0; i < links.length; i++){
-    	//if (links[i].href == ""){continue;}
+    	if (links[i].href == ""){continue;}
     	if (links[i].href.endsWith('#')){continue;}
     	if (inArray(links[i].href, _linkList)){continue;}
-    	if (_domain == links[i].host){
+
+    	if (_path == links[i].href.substring(0, (links[i].href.lastIndexOf('/')+1))){
+    		//console.log('Pushing', links[i].href)
     		_linkList.push(links[i].href);	    		
     	}
     }
+    
 	return _linkList;
 }
 
@@ -180,4 +235,19 @@ function inArray(newValue, currentArray){
 	}
 
 	return false;
+}
+
+
+
+function reportObject(){
+
+	var _fileSystemReport = [];
+
+	this.setFileSystemReportItem = function(item){
+		return _fileSystemReport.push(item);
+	}
+
+	this.getFileSystemReport = function(){
+		return _fileSystemReport;
+	}
 }
